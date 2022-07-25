@@ -1,1 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
+@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/primeng.min.css";
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.scss";
+
+@font-face {
+  font-family: CeraProLight;
+  src: url(assets/fonts/CeraProLight.otf) format("opentype");
+}
+
+@font-face {
+  font-family: CeraProMedium;
+  src: url(assets/fonts/CeraProMedium.otf) format("opentype");
+}
+
+
+$font-color: #eff3f8;
+
+* {
+  font-family: 'CeraProMedium',
+}
+
+body {
+  background-color: $font-color;
+}
