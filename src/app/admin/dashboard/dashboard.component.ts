@@ -1,11 +1,13 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
 import { Table } from 'primeng/table';
 import { MessageService } from 'primeng/api';
 import { User} from '../../auth/interfaces/interfaces';
+import { Role} from './interfaces/interfaces';
 import { UserService } from "../services/user.service";
-
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ConditionalExpr } from '@angular/compiler';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,9 +21,11 @@ export class DashboardComponent {
   get loggedUser(){
     return this.authservice.loggedUser;
   }
-  
 
+  //PrimeNg Table Variables
   userDialog: boolean = false;
+
+  userPassDialog: boolean = false;
 
   deleteUserDialog: boolean = false;
 
@@ -37,18 +41,22 @@ export class DashboardComponent {
 
   cols: any[] = [];
 
-  roles: any[] = [];
+  roles!: Role[];
+
+  selectedRole:Role = {};
 
   loading: boolean = true;
-  
+
   @ViewChild('dt')
     table!: Table;
-
   rowsPerPageOptions = [5, 10, 20];
+
+
   constructor(private router: Router,
     private authservice:AuthService,
     private messageService: MessageService,
-    private userService: UserService ) { }
+    private userService: UserService,
+    private fb:FormBuilder, ) { }
 
   ngOnInit() {
       this.userService.userAccess().subscribe(
@@ -63,23 +71,37 @@ export class DashboardComponent {
           { field: 'first_name', header: 'first_name' },
           { field: 'last_name', header: 'last_name' },
           { field: 'email', header: 'email' },
-          { field: 'created_at', header: 'created_at' },
+          { field: 'created_date', header: 'created_date' },
           { field: 'role_name', header: 'role_name' },
       ];
 
       this.roles = [
-          { label: 'Admin', value: 'Admin' },
-          { label: 'Meister', value: 'Meister' },
-          { label: 'Manager', value: 'Manager' }
+          { role_name: 'Admin', role_id: "1" },
+          { role_name: 'Meister', role_id: "2" },
+          { role_name: 'Manager', role_id: "3" }
       ];
   }
 
-logout(){
-      this.router.navigateByUrl('/auth/login');
-      this.authservice.logout()
-        .subscribe();
-    }
 
+
+    //Reactive forms
+
+  //Update Password User Reactive Form
+  updateUserForm: FormGroup =this.fb.group({
+    first_name: ['',[Validators.required]],
+    last_name: ['',[Validators.required]],
+    role_id: ['',[Validators.required]],
+    email: ['',[Validators.required]],
+  });
+  updatePassForm: FormGroup =this.fb.group({
+    password: ['',[Validators.required, Validators.minLength(8)]],
+  });
+
+  onSelectType(event:any) {
+    console.log(this.updateUserForm.value)
+
+  }
+  //PrimeNg functions
   openNew() {
       this.user = {};
       this.submitted = false;
@@ -88,46 +110,83 @@ logout(){
 
   deleteSelectedUsers() {
       this.deleteUsersDialog = true;
+
   }
 
   editUser(user: User) {
-      this.user = { ...this.user };
+      this.user = { ...user };
+      this.updateUserForm.patchValue(user);
       this.userDialog = true;
+  }
+  editPassUser(user: User) {
+    this.user = { ...user };
+    this.userPassDialog = true;
+    console.log(this.user);
   }
 
   deleteUser(user: User) {
       this.deleteUserDialog = true;
-      this.user = {...this.user };
+      this.user = {...user };
+      console.log(user);
   }
+
+  
 
   confirmDeleteSelected() {
       this.deleteUsersDialog = false;
-      this.users = this.users.filter(val => !this.selectedUsers.includes(val));
-      this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Users Deleted', life: 3000 });
-      this.selectedUsers = [];
+      
+      this.userService.deleteAllUser(this.selectedUsers).subscribe(
+        resp=>{
+            this.users = this.users.filter(val => !this.selectedUsers.includes(val));
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Users Deleted', life: 3000 });
+            this.selectedUsers = [];
+        }
+    );
+
+
   }
 
   confirmDelete() {
       this.deleteUserDialog = false;
-      this.users = this.users.filter(val => val.id !== this.user.id);
-      this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
-      this.user = {};
+      this.userService.deleteUser(this.user.id!).subscribe(
+        resp=>{
+            this.users = this.users.filter(val => val.id !== this.user.id);
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
+            this.user = {};
+        });
   }
 
+    //Hide user update and user save dialog
   hideDialog() {
       this.userDialog = false;
       this.submitted = false;
-  }
+    }
+    //Only Hide user password update dialog
+  hidePassDialog() {
+    this.userPassDialog = false;
+    this.submitted = false;
+    }
+
 
   saveUser() {
+      let userUpdateForm:User =this.updateUserForm.value;
+      let userUpdate:User = {
+        id:this.user.id,
+        first_name:userUpdateForm.first_name,
+        last_name:userUpdateForm.last_name,
+        email:userUpdateForm.email,
+        role_id:userUpdateForm.role_id
+      }
+      
       this.submitted = true;
-
-
           if (this.user.id) {
-              // @ts-ignore
-              this.user.inventoryStatus = this.user.inventoryStatus.value ? this.user.inventoryStatus.value : this.user.inventoryStatus;
-              this.users[this.findIndexById(this.user.id)] = this.user;
-              this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Updated', life: 3000 });
+            this.users[this.findIndexById(userUpdate.id!)] = userUpdate;
+              this.userService.updateUser(userUpdate).subscribe(
+                resp=>{
+                  this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Updated', life: 3000 });
+                }
+              )
+              // this.userService.updateUser()
           } else {
               this.user.id = this.createId();
               this.user.first_name = this.createId();
@@ -140,9 +199,26 @@ logout(){
 
           this.users = [...this.users];
           this.userDialog = false;
+          this.userPassDialog = false;
           this.user = {};
-    
+          this.updateUserForm.patchValue(this.user);
   }
+
+  updateUserPass() {
+
+        this.users[this.findIndexById(this.user.id!)] = this.user;
+
+        this.userService.updateUser(this.user).subscribe(
+          resp=>{
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Pass Updated', life: 3000 });
+          }
+        );
+        this.users = [...this.users];
+        this.userPassDialog = false;
+        this.user = {};
+        this.updatePassForm.patchValue(this.user);
+
+}
 
   findIndexById(id: string): number {
       let index = -1;
@@ -175,7 +251,7 @@ logout(){
 
   }
   onDateSelect(value:Date) {
-    this.table.filter(this.formatDate(value), 'created_at', 'contains');
+    this.table.filter(this.formatDate(value), 'created_date', 'equals');
     console.log(this.formatDate(value))
     }
 

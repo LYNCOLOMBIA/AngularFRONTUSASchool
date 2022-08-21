@@ -27,4 +27,51 @@ export class UserService {
 
   }
 
+  updateUser(user:User){
+
+    const url = `${this.baseUrl}/useraccess/${user.id}`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+
+    const body = user;
+    this.http.post(url,body);
+    return this.http.put<User>(url,body,{ headers: headers })
+      .pipe(
+        map(resp=> resp),
+        catchError(err=>of(err.error.message))
+      );
+  }
+
+
+  deleteUser(id:string){
+    const url = `${this.baseUrl}/useraccess/${id}`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+
+    return this.http.delete(url, { headers: headers })
+    .pipe(
+      catchError(err=> of(err))
+    );
+  }
+  deleteAllUser(users:Array<any>){
+
+    const url = `${this.baseUrl}/useraccess/deleteall`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+
+    const body = users;
+    this.http.post(url,body);
+    return this.http.post<User>(url,body,{ headers: headers })
+      .pipe(
+        map(resp=> resp),
+        catchError(err=>of(err.error.message))
+      );
+  }
+
 }

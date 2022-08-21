@@ -15,20 +15,22 @@ export class LoginComponent{
     email: ['andreygarzonquiroga@gmail.com',[Validators.required, Validators.email]],
     password: ['password',[Validators.required, Validators.minLength(6)]]
   });
+  loading:boolean = false;
 
   constructor(private fb:FormBuilder,
               private router: Router,
               private authService: AuthService) { }
 
   login(){
-
+    this.loading = true;
     const {email,password} = this.myForm.value;
     this.authService.login(email,password)
-      .subscribe(resp=>{ 
+      .subscribe(resp=>{  
         if(resp.access_token !== undefined){
           this.router.navigateByUrl('/dashboard');
           this.authService.getLoggedInUser(resp.access_token)
           .subscribe(user=>{
+            this.loading = false;
           });
         }
         else{
@@ -38,7 +40,8 @@ export class LoginComponent{
             icon: 'error',
             confirmButtonText: 'Ok',
             confirmButtonColor: '#2563EB',
-          })
+          });
+          this.loading = false;
         }
 
       })
