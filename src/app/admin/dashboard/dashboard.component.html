@@ -277,7 +277,6 @@
               optionLabel="role_name"
               optionValue = "role_id"
               name = "role_id"
-              (ngModelChange)="onSelectType($event)"
             >
           
           </p-dropdown>
@@ -294,7 +293,6 @@
               [ngClass]="{ 'ng-invalid ng-dirty': submitted && !user.email }"
             />
           </div>
-
         </ng-template>
 
         <ng-template pTemplate="footer">

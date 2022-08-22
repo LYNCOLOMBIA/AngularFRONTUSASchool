@@ -22,7 +22,7 @@ export class UserService {
     })
     return this.http.get<User>(url, { headers: headers })
       .pipe(
-        catchError(err=> of(err.error.message))
+        catchError(err=> of(err.error))
       );
 
   }
@@ -40,9 +40,26 @@ export class UserService {
     return this.http.put<User>(url,body,{ headers: headers })
       .pipe(
         map(resp=> resp),
-        catchError(err=>of(err.error.message))
+        catchError(err=>of(err.error))
       );
   }
+  storeUser(user:User){
+
+    const url = `${this.baseUrl}/useraccess`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+
+    const body = user;
+    this.http.post(url,body);
+    return this.http.post<User>(url,body,{ headers: headers })
+      .pipe(
+        map(resp=> resp),
+        catchError(err=>of(err.error))
+      );
+  }
+
 
 
   deleteUser(id:string){
@@ -70,7 +87,7 @@ export class UserService {
     return this.http.post<User>(url,body,{ headers: headers })
       .pipe(
         map(resp=> resp),
-        catchError(err=>of(err.error.message))
+        catchError(err=>of(err.error))
       );
   }
 

@@ -46,7 +46,7 @@ export class DashboardComponent {
   selectedRole:Role = {};
 
   loading: boolean = true;
-
+  
   @ViewChild('dt')
     table!: Table;
   rowsPerPageOptions = [5, 10, 20];
@@ -96,14 +96,11 @@ export class DashboardComponent {
   updatePassForm: FormGroup =this.fb.group({
     password: ['',[Validators.required, Validators.minLength(8)]],
   });
-
-  onSelectType(event:any) {
-    console.log(this.updateUserForm.value)
-
-  }
   //PrimeNg functions
   openNew() {
       this.user = {};
+      this.updateUserForm.reset();
+      console.log(this.updateUserForm.value)
       this.submitted = false;
       this.userDialog = true;
   }
@@ -138,7 +135,7 @@ export class DashboardComponent {
       this.userService.deleteAllUser(this.selectedUsers).subscribe(
         resp=>{
             this.users = this.users.filter(val => !this.selectedUsers.includes(val));
-            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Users Deleted', life: 3000 });
+            this.messageService.add({ severity: 'info', summary: 'User deleting', detail: resp, life: 3000 });
             this.selectedUsers = [];
         }
     );
@@ -151,7 +148,7 @@ export class DashboardComponent {
       this.userService.deleteUser(this.user.id!).subscribe(
         resp=>{
             this.users = this.users.filter(val => val.id !== this.user.id);
-            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
+            this.messageService.add({ severity: 'info', summary: 'User deleting', detail: resp, life: 3000 });
             this.user = {};
         });
   }
@@ -169,11 +166,15 @@ export class DashboardComponent {
 
 
   saveUser() {
+    
       let userUpdateForm:User =this.updateUserForm.value;
+      let findRoleName = this.roles.find((role)=>role.role_id === userUpdateForm.role_id)?.role_name;
       let userUpdate:User = {
         id:this.user.id,
         first_name:userUpdateForm.first_name,
         last_name:userUpdateForm.last_name,
+        created_date:this.user.created_date,
+        role_name:findRoleName? findRoleName:this.user.role_name,
         email:userUpdateForm.email,
         role_id:userUpdateForm.role_id
       }
@@ -183,25 +184,30 @@ export class DashboardComponent {
             this.users[this.findIndexById(userUpdate.id!)] = userUpdate;
               this.userService.updateUser(userUpdate).subscribe(
                 resp=>{
-                  this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Updated', life: 3000 });
+                  this.messageService.add({ severity: 'info', summary: 'User Updating', detail: resp.message, life: 3000 });
                 }
               )
-              // this.userService.updateUser()
           } else {
-              this.user.id = this.createId();
-              this.user.first_name = this.createId();
-              this.user.last_name = 'user-placeholder.svg';
-              // @ts-ignore
-              this.user.inventoryStatus = this.user.inventoryStatus ? this.user.inventoryStatus.value : 'INSTOCK';
+              this.user.first_name = userUpdateForm.first_name;
+              this.user.last_name = userUpdateForm.last_name;
+              this.user.email =  userUpdateForm.email;
+              this.user.role_id =  userUpdateForm.role_id;
+              this.user.role_name = findRoleName? findRoleName:this.user.role_name,
+              this.user.password = userUpdateForm.email;
               this.users.push(this.user);
-              this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+              this.userService.storeUser(this.user).subscribe(
+                resp=>{
+                  console.log(resp);
+                  this.messageService.add({ severity: 'info', summary: 'User creation', detail: resp.message, life: 3000 });
+                }
+              )
+
+
           }
 
-          this.users = [...this.users];
           this.userDialog = false;
           this.userPassDialog = false;
           this.user = {};
-          this.updateUserForm.patchValue(this.user);
   }
 
   updateUserPass() {
@@ -210,10 +216,9 @@ export class DashboardComponent {
 
         this.userService.updateUser(this.user).subscribe(
           resp=>{
-            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Pass Updated', life: 3000 });
+            this.messageService.add({ severity: 'info', summary: 'User pass updating', detail: resp.message, life: 3000 });
           }
         );
-        this.users = [...this.users];
         this.userPassDialog = false;
         this.user = {};
         this.updatePassForm.patchValue(this.user);
@@ -232,14 +237,6 @@ export class DashboardComponent {
       return index;
   }
 
-  createId(): string {
-      let id = '';
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      for (let i = 0; i < 5; i++) {
-          id += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return id;
-  }
 
   onFilter(event: Event,field:string,stringVal:string) {
       this.table.filter((event.target as HTMLInputElement).value, field,stringVal);
