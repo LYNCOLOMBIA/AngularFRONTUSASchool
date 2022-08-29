@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 export class LoginComponent{
 
   myForm: FormGroup =this.fb.group({
-    email: ['andreygarzonquiroga@gmail.com',[Validators.required, Validators.email]],
+    email: ['jamarbe05@gmail.com',[Validators.required, Validators.email]],
     password: ['password',[Validators.required, Validators.minLength(6)]]
   });
   loading:boolean = false;
@@ -27,9 +27,16 @@ export class LoginComponent{
     this.authService.login(email,password)
       .subscribe(resp=>{  
         if(resp.access_token !== undefined){
-          this.router.navigateByUrl('/dashboard');
+
           this.authService.getLoggedInUser(resp.access_token)
           .subscribe(user=>{
+            let role;
+            if(user.role_id == "1" ||user.role_id== "2"  ){
+              role = 'admin'
+            }else{
+              role = 'manager'
+            }
+            this.router.navigateByUrl(`/${role}/dashboard`);
             this.loading = false;
           });
         }

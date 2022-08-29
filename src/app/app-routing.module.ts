@@ -9,13 +9,17 @@ const routes: Routes = [
     loadChildren:()=> import ('./auth/auth.module').then(m => m.AuthModule)
   },
   {
-    path: 'dashboard',
+    path: 'admin/dashboard',
     loadChildren:()=> import ('./admin/admin.module').then(m => m.AdminModule),
     canActivate:[TokenValidationGuard],
     canLoad:[TokenValidationGuard]
-
   },
-  
+  {
+    path: 'manager/dashboard',
+    loadChildren:()=> import ('./manager/manager.module').then(m => m.ManagerModule),
+    canActivate:[TokenValidationGuard],
+    canLoad:[TokenValidationGuard]
+  },
   {
     path:'**',
     redirectTo:'auth'

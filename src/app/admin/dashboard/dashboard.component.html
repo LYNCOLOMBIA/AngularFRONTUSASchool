@@ -26,29 +26,10 @@
           </div>
         </ng-template>
 
-        <ng-template pTemplate="right">
-          <p-fileUpload
-            mode="basic"
-            accept="image/*"
-            [maxFileSize]="1000000"
-            label="Import"
-            chooseLabel="Import"
-            class="mr-2 inline-block"
-          ></p-fileUpload>
-          <button
-            pButton
-            pRipple
-            label="Export"
-            icon="pi pi-upload"
-            class="p-button-help"
-            (click)="dt.exportCSV()"
-          ></button>
-        </ng-template>
       </p-toolbar>
       <p-table
         #dt
         [value]="users"
-        [rows]="10"
         [globalFilterFields]="[
           'id',
           'first_name',
@@ -153,14 +134,14 @@
 
             <th>
               <p-dropdown
-                [options]="roles"
+                [options]="roles_drop"
                 (onChange)="dt.filter($event.value, 'role_name', 'equals')"
                 styleClass="p-column-filter"
-                placeholder="Select a Status"
+                placeholder="Select a Role" 
                 [showClear]="true"
               >
                 <ng-template let-option pTemplate="item">
-                  <span [class]="'customer-badge status-' + option.value">{{
+                  <span>{{
                     option.label
                   }}</span>
                 </ng-template>

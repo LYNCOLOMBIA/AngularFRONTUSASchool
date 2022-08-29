@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component,ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
 import { Table } from 'primeng/table';
@@ -7,7 +7,6 @@ import { User} from '../../auth/interfaces/interfaces';
 import { Role} from './interfaces/interfaces';
 import { UserService } from "../services/user.service";
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ConditionalExpr } from '@angular/compiler';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,13 +41,13 @@ export class DashboardComponent {
   cols: any[] = [];
 
   roles!: Role[];
+  roles_drop!:any[];
 
   selectedRole:Role = {};
 
   loading: boolean = true;
   
-  @ViewChild('dt')
-    table!: Table;
+  @ViewChild('dt') table!: Table;
   rowsPerPageOptions = [5, 10, 20];
 
 
@@ -76,10 +75,15 @@ export class DashboardComponent {
       ];
 
       this.roles = [
-          { role_name: 'Admin', role_id: "1" },
-          { role_name: 'Meister', role_id: "2" },
-          { role_name: 'Manager', role_id: "3" }
+          { role_name: 'Admin', role_id: '1' },
+          { role_name: 'Meister', role_id: '2' },
+          { role_name: 'Manager', role_id: '3' }
       ];
+      this.roles_drop = [
+        { label: 'Admin', value: 'Admin' },
+        { label: 'Meister', value: 'Meister' },
+        { label: 'Manager', value: 'Manager' }
+    ];
   }
 
 
@@ -185,6 +189,12 @@ export class DashboardComponent {
               this.userService.updateUser(userUpdate).subscribe(
                 resp=>{
                   this.messageService.add({ severity: 'info', summary: 'User Updating', detail: resp.message, life: 3000 });
+                  this.userService.userAccess().subscribe(
+                    resp=>{
+                        this.users = resp;
+                        this.loading = false;
+                    }
+                  );
                 }
               )
           } else {
@@ -194,11 +204,17 @@ export class DashboardComponent {
               this.user.role_id =  userUpdateForm.role_id;
               this.user.role_name = findRoleName? findRoleName:this.user.role_name,
               this.user.password = userUpdateForm.email;
-              this.users.push(this.user);
               this.userService.storeUser(this.user).subscribe(
                 resp=>{
                   console.log(resp);
                   this.messageService.add({ severity: 'info', summary: 'User creation', detail: resp.message, life: 3000 });
+
+                  this.userService.userAccess().subscribe(
+                    resp=>{
+                        this.users = resp;
+                        this.loading = false;
+                    }
+                  );
                 }
               )
 
