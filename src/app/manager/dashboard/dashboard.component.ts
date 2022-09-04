@@ -32,6 +32,8 @@ export class DashboardComponent implements OnInit {
 
   studentDialog: boolean = false;
 
+  importDialog:boolean = false;
+
   deleteGroupDialog: boolean = false;
 
   groups: Group[] = [];
@@ -154,7 +156,11 @@ export class DashboardComponent implements OnInit {
   }
 
   readExcel(event:any ){
-    let file =  event.target.files[0];
+    this.importDialog = false;
+    this.loading = true;
+    this.excel = [];
+    let file =  event.files[0];
+    console.log(file);
     let fileReader = new FileReader();
     fileReader.readAsBinaryString(file);
     fileReader.onload = (e)=>{
@@ -166,12 +172,35 @@ export class DashboardComponent implements OnInit {
       let excel = {
         group_id:this.selectedGroup.id,
         first_name: Object.values(this.excelData[index]).toString()
-        };
+      };
 
       this.excel.push(excel);
-      
+
+
      }
-     console.log(this.excel);
+
+     let students = {
+      data: [ ...this.excel ],
+    };
+     console.table(students);
+     this.managerservice.storeStudent(students).subscribe((resp) => {
+       this.messageService.add({
+         severity: 'info',
+         summary: 'Student creation',
+         detail: resp.message,
+         life: 3000,
+       });
+       this.managerservice.students().subscribe((resp) => {
+         this.userStudents = resp;
+         this.students = this.userStudents.filter(
+           (val) => val.group_id === this.selectedGroup.id
+         );
+         this.loading = false;
+         console.log(this.userStudents);
+       });
+     });
+   
+
 
     }
     
@@ -232,6 +261,9 @@ export class DashboardComponent implements OnInit {
   hideStudentDialog() {
     this.studentDialog = false;
   }
+  hideImportDialog() {
+    this.importDialog = false;
+  }
 
   editStudent(student: Group) {
     this.student = { ...student };
@@ -241,6 +273,12 @@ export class DashboardComponent implements OnInit {
   openNewStudent() {
     this.student = {};
     this.studentDialog = true;
+  }
+
+  openImportStudent() {
+    this.excel = [];
+    this.excelData = [];
+    this.importDialog = true;
   }
 
   findStudentIndexById(id: string): number {
@@ -312,11 +350,7 @@ export class DashboardComponent implements OnInit {
     }
   }
   onRowSelect(event: any) {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Product Selected',
-      detail: event.data.name,
-    });
+
     this.students = this.userStudents.filter(
       (val) => val.group_id === event.data.id
     );
@@ -324,10 +358,6 @@ export class DashboardComponent implements OnInit {
   }
 
   onRowUnselect(event: any) {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Product Unselected',
-      detail: event.data.name,
-    });
+    this.students = [];
   }
 }

@@ -1,4 +1,5 @@
 <app-navbar></app-navbar>
+<p-toast></p-toast>
 <div class="grid mx-4 mt-4">
   <div class="col-6">
     <div class="card">
@@ -12,7 +13,6 @@
           class="p-button-success mr-2"
           (click)="openNewGroup()"
         ></button>
-
       </div>
       <p-table
         [value]="groups"
@@ -31,15 +31,29 @@
         <ng-template pTemplate="header">
           <tr>
             <th>Name</th>
-            <th style="width:10rem"></th>
+            <th style="width: 10rem"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-group>
           <tr [pSelectableRow]="group">
             <td>{{ group.group_name }}</td>
             <td>
-                <button type="button" class="p-button-warning" pButton pRipple icon="pi pi-pencil" (click)="editGroup(group)"></button>
-                <button type="button" class="p-button-danger ml-1" pButton pRipple icon="pi pi-trash" (click)="deleteGroup(group)"></button>
+              <button
+                type="button"
+                class="p-button-warning"
+                pButton
+                pRipple
+                icon="pi pi-pencil"
+                (click)="editGroup(group)"
+              ></button>
+              <button
+                type="button"
+                class="p-button-danger ml-1"
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                (click)="deleteGroup(group)"
+              ></button>
             </td>
           </tr>
         </ng-template>
@@ -56,7 +70,7 @@
           label="New"
           icon="pi pi-plus"
           class="p-button-success mr-2"
-          [disabled]="!students.length  && !selectedGroup"
+          [disabled]="!students.length && !selectedGroup"
           (click)="openNewStudent()"
         ></button>
         <button
@@ -68,190 +82,193 @@
           (click)="deleteSelectedStudents()"
           [disabled]="!selectedStudents || !selectedStudents.length"
         ></button>
-        <p-fileUpload
-        mode="basic"
-        chooseIcon = "pi pi-file-excel"
-        cancelIcon = "pi pi-times"
-        accept=".xlsx"
-        [maxFileSize]="1000000"
-        label="Import"
-        chooseLabel="Import .xlsx"
-        (change) = "readExcel($event)"
-        class="mr-2 inline-block"
-      ></p-fileUpload>
-      <input type="file" name="" id=""         (change) = "readExcel($event)">
+
+        <button
+          pButton
+          pRipple
+          label="Import"
+          icon="pi pi-file-excel          "
+          class="p-button-info mr-2"
+          (click)="openImportStudent()"
+          [disabled]="!students.length && !selectedGroup"
+        ></button>
       </div>
-        <p-table [value]="students"
+      <p-table
+        [value]="students"
         [rows]="10"
         [paginator]="true"
+        [loading]="loading"
         [rowsPerPageOptions]="[10, 20, 30]"
         [showCurrentPageReport]="true"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [(selection)]="selectedStudents">
-            <ng-template pTemplate="header">
-                <tr>
-                  <th style="width: 3rem">
-                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                </th>
-                    <th>Name</th>
-                    <th style="width:10rem"></th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-student>
-                <tr>
-                  <td>
-                    <p-tableCheckbox [value]="student"></p-tableCheckbox>
-                </td>
-                    <td>{{student.first_name}}</td>
-                    <td>
-                        <button type="button" class="p-button-warning" pButton pRipple icon="pi pi-pencil" (click)="editStudent(student)"></button>
-                        <button type="button" class="p-button-danger ml-1" pButton pRipple icon="pi pi-trash" (click)="deleteStudent(student)"></button>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
+        [(selection)]="selectedStudents"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th>Name</th>
+            <th style="width: 10rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-student>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="student"></p-tableCheckbox>
+            </td>
+            <td>{{ student.first_name }}</td>
+            <td>
+              <button
+                type="button"
+                class="p-button-warning"
+                pButton
+                pRipple
+                icon="pi pi-pencil"
+                (click)="editStudent(student)"
+              ></button>
+              <button
+                type="button"
+                class="p-button-danger ml-1"
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                (click)="deleteStudent(student)"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   </div>
 
   <p-dialog
-  [(visible)]="deleteGroupDialog"
-  header="Confirm"
-  [modal]="true"
-  [style]="{ width: '450px' }"
->
-  <div class="flex align-items-center justify-content-center">
-    <i
-      class="pi pi-exclamation-triangle mr-3"
-      style="font-size: 2rem"
-    ></i>
-    <span *ngIf="group"
-      >Are you sure you want to delete <b>{{ group.group_name }}</b
-      >?</span
-    >
-  </div>
-  <ng-template pTemplate="footer">
-    <button
-      pButton
-      pRipple
-      icon="pi pi-times"
-      class="p-button-text"
-      label="No"
-      (click)="deleteGroupDialog = false"
-    ></button>
-    <button
-      pButton
-      pRipple
-      icon="pi pi-check"
-      class="p-button-text"
-      label="Yes"
-      (click)="confirmDeleteGroup()"
-    ></button>
-  </ng-template>
-</p-dialog>
-
-<p-dialog
-[(visible)]="deleteStudentDialog"
-header="Confirm"
-[modal]="true"
-[style]="{ width: '450px' }"
->
-<div class="flex align-items-center justify-content-center">
-  <i
-    class="pi pi-exclamation-triangle mr-3"
-    style="font-size: 2rem"
-  ></i>
-  <span *ngIf="student"
-    >Are you sure you want to delete <b>{{ student.first_name }}</b
-    >?</span
+    [(visible)]="deleteGroupDialog"
+    header="Confirm"
+    [modal]="true"
+    [style]="{ width: '450px' }"
   >
-</div>
-<ng-template pTemplate="footer">
-  <button
-    pButton
-    pRipple
-    icon="pi pi-times"
-    class="p-button-text"
-    label="No"
-    (click)="deleteGroupDialog = false"
-  ></button>
-  <button
-    pButton
-    pRipple
-    icon="pi pi-check"
-    class="p-button-text"
-    label="Yes"
-    (click)="confirmDeleteStudent()"
-  ></button>
-</ng-template>
-</p-dialog>
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span *ngIf="group"
+        >Are you sure you want to delete <b>{{ group.group_name }}</b
+        >?</span
+      >
+    </div>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        icon="pi pi-times"
+        class="p-button-text"
+        label="No"
+        (click)="deleteGroupDialog = false"
+      ></button>
+      <button
+        pButton
+        pRipple
+        icon="pi pi-check"
+        class="p-button-text"
+        label="Yes"
+        (click)="confirmDeleteGroup()"
+      ></button>
+    </ng-template>
+  </p-dialog>
 
-<p-dialog
-[(visible)]="deleteStudentsDialog"
-header="Confirm"
-[modal]="true"
-[style]="{ width: '450px' }"
->
-<div class="flex align-items-center justify-content-center">
-  <i
-    class="pi pi-exclamation-triangle mr-3"
-    style="font-size: 2rem"
-  ></i>
-  <span>Are you sure you want to delete selected students?</span>
-</div>
-<ng-template pTemplate="footer">
-  <button
-    pButton
-    pRipple
-    icon="pi pi-times"
-    class="p-button-text"
-    label="No"
-    (click)="deleteStudentsDialog = false"
-  ></button>
-  <button
-    pButton
-    pRipple
-    icon="pi pi-check"
-    class="p-button-text"
-    label="Yes"
-    (click)="confirmDeleteSelectedStudent()"
-  ></button>
-</ng-template>
-</p-dialog>
+  <p-dialog
+    [(visible)]="deleteStudentDialog"
+    header="Confirm"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+  >
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span *ngIf="student"
+        >Are you sure you want to delete <b>{{ student.first_name }}</b
+        >?</span
+      >
+    </div>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        icon="pi pi-times"
+        class="p-button-text"
+        label="No"
+        (click)="deleteGroupDialog = false"
+      ></button>
+      <button
+        pButton
+        pRipple
+        icon="pi pi-check"
+        class="p-button-text"
+        label="Yes"
+        (click)="confirmDeleteStudent()"
+      ></button>
+    </ng-template>
+  </p-dialog>
 
-<p-dialog
-[(visible)]="groupDialog"
-[style]="{ width: '450px' }"
-header="Group Details"
-[modal]="true"
-class="p-fluid"
->
-<ng-template pTemplate="content">
+  <p-dialog
+    [(visible)]="deleteStudentsDialog"
+    header="Confirm"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+  >
+    <div class="flex align-items-center justify-content-center">
+      <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+      <span>Are you sure you want to delete selected students?</span>
+    </div>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        icon="pi pi-times"
+        class="p-button-text"
+        label="No"
+        (click)="deleteStudentsDialog = false"
+      ></button>
+      <button
+        pButton
+        pRipple
+        icon="pi pi-check"
+        class="p-button-text"
+        label="Yes"
+        (click)="confirmDeleteSelectedStudent()"
+      ></button>
+    </ng-template>
+  </p-dialog>
 
-    <div class="field">
+  <p-dialog
+    [(visible)]="groupDialog"
+    [style]="{ width: '450px' }"
+    header="Group Details"
+    [modal]="true"
+    class="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
         <label for="name">Name</label>
         <input
-            type="text"
-            pInputText
-            id="name"
-            [(ngModel)]="group.group_name"
-            required
-            autofocus
+          type="text"
+          pInputText
+          id="name"
+          [(ngModel)]="group.group_name"
+          required
+          autofocus
         />
+      </div>
+    </ng-template>
 
-    </div>
-
-</ng-template>
-
-<ng-template pTemplate="footer">
-    <button
+    <ng-template pTemplate="footer">
+      <button
         pButton
         pRipple
         label="Cancel"
         icon="pi pi-times"
         class="p-button-text"
         (click)="hideGroupDialog()"
-    ></button>
-    <button
+      ></button>
+      <button
         pButton
         pRipple
         label="Save"
@@ -259,46 +276,41 @@ class="p-fluid"
         class="p-button-text"
         [disabled]="!group.group_name"
         (click)="saveGroup()"
-    ></button>
-</ng-template>
-</p-dialog>
+      ></button>
+    </ng-template>
+  </p-dialog>
 
-
-
-<p-dialog
-[(visible)]="studentDialog"
-[style]="{ width: '450px' }"
-header="Student Details"
-[modal]="true"
-class="p-fluid"
->
-<ng-template pTemplate="content">
-
-    <div class="field">
+  <p-dialog
+    [(visible)]="studentDialog"
+    [style]="{ width: '450px' }"
+    header="Student Details"
+    [modal]="true"
+    class="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
         <label for="name">Name</label>
         <input
-            type="text"
-            pInputText
-            id="name"
-            [(ngModel)]="student.first_name"
-            required
-            autofocus
+          type="text"
+          pInputText
+          id="name"
+          [(ngModel)]="student.first_name"
+          required
+          autofocus
         />
+      </div>
+    </ng-template>
 
-    </div>
-
-</ng-template>
-
-<ng-template pTemplate="footer">
-    <button
+    <ng-template pTemplate="footer">
+      <button
         pButton
         pRipple
         label="Cancel"
         icon="pi pi-times"
         class="p-button-text"
         (click)="hideStudentDialog()"
-    ></button>
-    <button
+      ></button>
+      <button
         pButton
         pRipple
         label="Save"
@@ -306,8 +318,32 @@ class="p-fluid"
         class="p-button-text"
         [disabled]="!student.first_name"
         (click)="saveStudent()"
-    ></button>
-</ng-template>
-</p-dialog>
+      ></button>
+    </ng-template>
+  </p-dialog>
 
+  <p-dialog
+    [(visible)]="importDialog"
+    [style]="{ width: '650px' }"
+    header="Import students"
+    [modal]="true"
+    class="p-fluid"
+    loading = "loading"
+  >
+    <ng-template pTemplate="content">
+      <p-messages severity="info">
+        <ng-template pTemplate>
+            <!-- <img src="assets/showcase/images/primeng.svg" width="32" /> -->
+            <div class="ml-2"><p>Remember:</p>
+            <p>
+              1. Your file must have a header(The name you assign doesn't matter).
+              </p>
+              <p>
+                2. Preferably leave the full name in a single column, if you leave it in more than one they will be unified.
+                </p></div>
+        </ng-template>
+    </p-messages>
+      <p-fileUpload d name="myfile[]" [customUpload]="true" accept=".xlsx" [maxFileSize]="1000000" (uploadHandler)="readExcel($event)" ></p-fileUpload>
+    </ng-template>
+  </p-dialog>
 </div>
