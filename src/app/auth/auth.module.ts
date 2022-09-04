@@ -8,6 +8,7 @@ import { RecoveryPasswordComponent } from './pages/recovery-password/recovery-pa
 
 //Personalized modules
 import { PrimeNgModule } from '../prime-ng/prime-ng.module';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
  
 
 
@@ -15,7 +16,8 @@ import { PrimeNgModule } from '../prime-ng/prime-ng.module';
   declarations: [
     LoginComponent,
     MainComponent,
-    RecoveryPasswordComponent
+    RecoveryPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     CommonModule,

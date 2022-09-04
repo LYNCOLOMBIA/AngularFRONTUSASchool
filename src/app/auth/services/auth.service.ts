@@ -90,5 +90,27 @@ export class AuthService {
     return this.http.get(url, { headers: headers })
   }
 
+  sendEmailToRecoveryPassword(email:string){
 
+    const url = `${this.baseUrl}/forgot-password`;
+    const body = {email};
+    this.http.post(url,body);
+    return this.http.post<AuthResponse>(url,body)
+      .pipe(
+        map(resp=> resp),
+        catchError(err=>of(err.error.message))
+      );
+  }
+
+  resetPassword(token:string,email:string, password:string,password_confirmation:string){
+
+    const url = `${this.baseUrl}/reset-password`;
+    const body = {token,email,password,password_confirmation};
+    this.http.post(url,body);
+    return this.http.post<AuthResponse>(url,body)
+      .pipe(
+        map(resp=> resp),
+        catchError(err=>of(err.error.message))
+      );
+  }
 }
