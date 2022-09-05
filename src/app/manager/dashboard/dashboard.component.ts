@@ -175,8 +175,6 @@ export class DashboardComponent implements OnInit {
       };
 
       this.excel.push(excel);
-
-
      }
 
      let students = {
