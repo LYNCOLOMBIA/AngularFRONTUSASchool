@@ -48,10 +48,11 @@ export class LoginComponent{
             confirmButtonText: 'Ok',
             confirmButtonColor: '#2563EB',
           });
-          this.loading = false;
-        }
 
-      })
+        }
+        this.loading = false;
+      });
+
 
   }
 }
