@@ -167,20 +167,6 @@ export class DashboardComponent implements OnInit {
      var workBook = XLSX.read(fileReader.result,{type:'binary'});
      var sheetNames = workBook.SheetNames;
      this.excelData =  XLSX.utils.sheet_to_json(workBook.Sheets[sheetNames[0]]);
-    //  for (let index = 0; index < this.excelData.length; index++) {
-
-    //   let excel = {
-    //     
-    //     first_name: Object.values(this.excelData[index]).toString(),
-    //     code: Object.values(this.excelData[index]).toString()
-    //   };
-
-    //   this.excel.push(excel);
-    //  }
-
-    //  let students = {
-    //   data: [ ...this.excel ],
-    // };
 
     let headers = Object.keys(this.excelData[0]);
 
