@@ -167,21 +167,38 @@ export class DashboardComponent implements OnInit {
      var workBook = XLSX.read(fileReader.result,{type:'binary'});
      var sheetNames = workBook.SheetNames;
      this.excelData =  XLSX.utils.sheet_to_json(workBook.Sheets[sheetNames[0]]);
-     for (let index = 0; index < this.excelData.length; index++) {
+    //  for (let index = 0; index < this.excelData.length; index++) {
 
-      let excel = {
-        group_id:this.selectedGroup.id,
-        first_name: Object.values(this.excelData[index]).toString()
-      };
+    //   let excel = {
+    //     
+    //     first_name: Object.values(this.excelData[index]).toString(),
+    //     code: Object.values(this.excelData[index]).toString()
+    //   };
 
-      this.excel.push(excel);
-     }
+    //   this.excel.push(excel);
+    //  }
 
-     let students = {
-      data: [ ...this.excel ],
+    //  let students = {
+    //   data: [ ...this.excel ],
+    // };
+
+    let headers = Object.keys(this.excelData[0]);
+
+    const [code, name] = headers;
+
+    let students = this.excelData.map((student)=>({
+          group_id:this.selectedGroup.id,
+          first_name: student[name],
+          code: student[code]
+    }));
+
+    let data = {
+      data:[
+        ...this.students = students
+      ]
     };
-     console.table(students);
-     this.managerservice.storeStudent(students).subscribe((resp) => {
+
+     this.managerservice.storeStudent(data).subscribe((resp) => {
        this.messageService.add({
          severity: 'info',
          summary: 'Student creation',
@@ -198,7 +215,9 @@ export class DashboardComponent implements OnInit {
        });
      });
    
-
+      console.table(this.excelData);
+      console.log(headers);
+      console.table(this.students )
 
     }
     

@@ -109,6 +109,7 @@
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <th>Name</th>
+            <th>Code</th>
             <th style="width: 10rem"></th>
           </tr>
         </ng-template>
@@ -118,6 +119,7 @@
               <p-tableCheckbox [value]="student"></p-tableCheckbox>
             </td>
             <td>{{ student.first_name }}</td>
+            <td>{{ student.code }}</td>
             <td>
               <button
                 type="button"
@@ -257,6 +259,7 @@
           autofocus
         />
       </div>
+      
     </ng-template>
 
     <ng-template pTemplate="footer">
@@ -295,6 +298,17 @@
           pInputText
           id="name"
           [(ngModel)]="student.first_name"
+          required
+          autofocus
+        />
+      </div>
+      <div class="field">
+        <label for="code">Code</label>
+        <input
+          type="text"
+          pInputText
+          id="code"
+          [(ngModel)]="student.code"
           required
           autofocus
         />
