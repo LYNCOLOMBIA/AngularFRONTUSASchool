@@ -1,6 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { TokenValidationGuard } from './guards/token-validation.guard';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { NotAuthorizedComponent } from './not-authorized/not-authorized.component';
+import { RoleAdminValidationGuard } from './guards/role-admin-validation.guard';
+import { LoginComponent } from './auth/pages/login/login.component';
 
 const routes: Routes = [
 
@@ -9,21 +13,27 @@ const routes: Routes = [
     loadChildren:()=> import ('./auth/auth.module').then(m => m.AuthModule)
   },
   {
-    path: 'admin/dashboard',
+    path: 'admin',
     loadChildren:()=> import ('./admin/admin.module').then(m => m.AdminModule),
-    canActivate:[TokenValidationGuard],
-    canLoad:[TokenValidationGuard]
+    // canActivate:[RoleAdminValidationGuard],
+    // canLoad:[RoleAdminValidationGuard]
   },
+
   {
     path: 'manager/dashboard',
     loadChildren:()=> import ('./manager/manager.module').then(m => m.ManagerModule),
     canActivate:[TokenValidationGuard],
     canLoad:[TokenValidationGuard]
   },
+  { path: 'forbidden', component: NotAuthorizedComponent },
+  // {
+  //   path:'**',pathMatch: 'full',
+  //   component:PageNotFoundComponent
+  // },
   {
-    path:'**',
-    redirectTo:'auth'
-  }
+    path:'',redirectTo: 'auth/login', pathMatch: 'full'
+  },
+
 ];
 
 @NgModule({

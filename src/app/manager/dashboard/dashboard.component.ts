@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
   get loggedUser() {
     return this.authservice.loggedUser;
   }
-  loading: boolean = false;
+  loading: boolean = true;
 
   userStudents: Student[] = [];
 
@@ -48,6 +48,7 @@ export class DashboardComponent implements OnInit {
 
   excel:any[] = [];
 
+  dash = 'manager';
 
   constructor(
     private router: Router,

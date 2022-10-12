@@ -1,0 +1,306 @@
+<app-navbar [dash]="dash"></app-navbar>
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <p-toast></p-toast>
+      <p-toolbar styleClass="mt-6 mb-4">
+        <ng-template pTemplate="left">
+          <div class="my-2">
+            <button
+              pButton
+              pRipple
+              label="New"
+              icon="pi pi-plus"
+              class="p-button-success mr-2"
+              (click)="openNew()"
+            ></button>
+          </div>
+        </ng-template>
+      </p-toolbar>
+      <p-table
+        #dt2
+        [value]="advertisings"
+        [globalFilterFields]="[
+          'url_xl',
+          'url_sm',
+          'advertising_name',
+          'advertising_state',
+          'advertising_name'
+        ]"
+        [rows]="10"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 20, 30]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowHover]="true"
+        dataKey="id"
+        [loading]="loading"
+        styleClass="p-datatable-customers"
+        [filterDelay]="0"
+      >
+        <ng-template pTemplate="caption">
+          <div class="table-header">
+            List of Advertising
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                (input)="onGlobalFilter($event, 'contains')"
+                placeholder="Global Search"
+              />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="url_xl">
+              Url Banner Xl<p-sortIcon field="url_xl"></p-sortIcon>
+            </th>
+            <th pSortableColumn="url_sm">
+              Url Banner SM<p-sortIcon field="url_sm"></p-sortIcon>
+            </th>
+            <th pSortableColumn="advertising_name">
+              Name<p-sortIcon field="advertising_name"></p-sortIcon>
+            </th>
+            <th pSortableColumn="advertising_state">
+              State<p-sortIcon field="advertising_state"></p-sortIcon>
+            </th>
+
+            <th pSortableColumn="created_at">
+              Created At<p-sortIcon field="created_at"></p-sortIcon>
+            </th>
+            <th style="width: 8rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-advertising>
+          <tr>
+            <td>
+              <span class="p-column-title">Url Banner Xl</span>
+              {{ advertising.url_xl }}
+            </td>
+            <td>
+              <span class="p-column-title">Url Banner SM</span>
+              {{ advertising.url_sm }}
+            </td>
+
+            <td>
+              <span class="p-column-title">Name</span>
+              {{ advertising.advertising_name }}
+            </td>
+            <td>
+              <span class="p-column-title">State</span>
+              {{ advertising.advertising_state ? "Active" : "Inactive" }}
+            </td>
+            <td>
+              <span class="p-column-title">Created At</span>
+              {{ advertising.created_at | date}}
+            </td>
+            <td>
+              <div class="flex">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-window-maximize                "
+                  class="p-button-rounded p-button-info mr-2"
+                  (click)="viewBannerAdvertising(advertising)"
+                ></button>
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-warning mr-2"
+                  (click)="editAdvertising(advertising)"
+                ></button>
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-danger mr-2"
+                  (click)="deleteAdvertising(advertising)"
+                ></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8">No advertisings found.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <!-- Form to general advertising info update  -->
+
+      <p-dialog
+        [(visible)]="advertisingDialog"
+        [style]="{ width: '500px' }"
+        header="Advertising Details"
+        [modal]="true"
+        class="p-fluid"
+      >
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="url_sm">Url Banner SM</label>
+            <input
+              type="text"
+              pInputText
+              id="url_sm"
+              [(ngModel)]="advertising.url_sm"
+              required
+              autofocus
+            />
+          </div>
+          <div class="field">
+            <label for="url_xl">Url Banner Xl</label>
+            <input
+              type="text"
+              pInputText
+              id="url_xl"
+              [(ngModel)]="advertising.url_xl"
+              required
+              autofocus
+            />
+          </div>
+
+          <div class="field">
+            <label for="advertising_name">Name</label>
+            <input
+              type="text"
+              pInputText
+              id="advertising_name"
+              [(ngModel)]="advertising.advertising_name"
+              required
+              autofocus
+            />
+          </div>
+          <div class="field mt-4">
+            <p-checkbox
+              [(ngModel)]="advertising_state"
+              label="Active"
+              [binary]="true"
+            ></p-checkbox>
+          </div>
+          <!-- <input type="file" name="file"(change)="onFileSelected($event)"> -->
+          <div class="field my-5">
+            <label for="Banner SM">Banner SM </label>
+            <p-fileUpload
+              [showUploadButton]="false"
+              name="myfile[]"
+              (onSelect)="onFileSelectedSM($event)"
+            ></p-fileUpload>
+          </div>
+          <div class="field my-5">
+            <label for="Banner XL">Banner XL</label>
+            <p-fileUpload
+              [showUploadButton]="false"
+              name="myfile[]"
+              (onSelect)="onFileSelectedXL($event)"
+            ></p-fileUpload>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <a
+            pButton
+            pRipple
+            label="Cancel"
+            icon="pi pi-times"
+            class="p-button-text"
+            (click)="hideDialog()"
+          ></a>
+          <button
+            pButton
+            pRipple
+            label="Save"
+            type="submit"
+            icon="pi pi-check"
+            class="p-button-text"
+            [disabled]="submitted"
+            loadingIcon="submitted"
+            (click)="saveAdvertising()"
+          ></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- View Banners -->
+      <p-dialog
+        [(visible)]="advertisingBannerDialog"
+        [style]="{ width: '450px' }"
+        header="Advertising Banner Details"
+        [modal]="true"
+        class="p-fluid"
+      >
+        <ng-template pTemplate="content">
+          <div *ngIf="advertising.banner_sm_url">
+            <h4>Banner SM</h4>
+            <p class="my-2">{{ advertising.banner_sm_url }}</p>
+            <img
+              class="banner-sm mt-3"
+              [src]="advertising.banner_sm_url"
+              alt=""
+            />
+          </div>
+
+          <div *ngIf="advertising.banner_xl_url">
+            <h4>Banner XL</h4>
+            <p class="my-2">{{ advertising.banner_xl_url }}</p>
+            <img
+              class="banner-xl mt-3"
+              [src]="advertising.banner_xl_url"
+              alt=""
+            />
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <button
+            pButton
+            pRipple
+            label="Ok"
+            type="submit"
+            icon="pi pi-check"
+            class="p-button-text"
+            (click)="advertisingBannerDialog = false"
+          ></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Advertising delete dalog -->
+      <p-dialog
+        [(visible)]="deleteAdvertisingDialog"
+        header="Confirm"
+        [modal]="true"
+        [style]="{ width: '450px' }"
+      >
+        <div class="flex align-items-center justify-content-center">
+          <i
+            class="pi pi-exclamation-triangle mr-3"
+            style="font-size: 2rem"
+          ></i>
+          <span *ngIf="advertising"
+            >Are you sure you want to delete <b>{{ advertising.url_xl }}</b
+            >?</span
+          >
+        </div>
+        <ng-template pTemplate="footer">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-text"
+            label="No"
+            (click)="deleteAdvertisingDialog = false"
+          ></button>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-check"
+            class="p-button-text"
+            label="Yes"
+            (click)="confirmDelete()"
+          ></button>
+        </ng-template>
+      </p-dialog>
+    </div>
+  </div>
+</div>

@@ -4,12 +4,15 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { PrimeNgModule } from "../prime-ng/prime-ng.module";
 
 
+
+
 @NgModule({
   exports:[
     NavbarComponent
   ],
   declarations: [
-    NavbarComponent
+    NavbarComponent,
+
   ],
   imports: [
     CommonModule,

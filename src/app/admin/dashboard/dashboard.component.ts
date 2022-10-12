@@ -50,6 +50,8 @@ export class DashboardComponent {
   @ViewChild('dt') table!: Table;
   rowsPerPageOptions = [5, 10, 20];
 
+  dash = 'admin';
+
 
   constructor(private router: Router,
     private authservice:AuthService,

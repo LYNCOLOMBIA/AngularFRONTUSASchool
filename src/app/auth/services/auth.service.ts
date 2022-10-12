@@ -12,10 +12,13 @@ export class AuthService {
   private baseUrl:string =  environment.baseUrl;
   private _user!:User;
 
-  get loggedUser(){
+  get loggedUser(): User{
     return {...this._user};
   }
 
+  get roleUser(){
+    return localStorage.getItem('role');
+  }
   constructor(private http:HttpClient) { }
 
 
@@ -49,7 +52,7 @@ export class AuthService {
             email_verified_at:resp.email_verified_at, 
             created_date: resp.created_date,
             updated_at: resp.updated_at
-          }
+          };
         })
       )
   }
@@ -79,6 +82,30 @@ export class AuthService {
       );
 
   }
+
+  roleAdminValidation():Observable<boolean> {
+
+    const url = `${this.baseUrl}/user_info`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    })
+    return this.http.get<User>(url, { headers: headers })
+      .pipe(
+        map(resp => {
+            if(resp.role_id == '1' || resp.role_id == '2'){
+
+              return true;
+            }
+            return false
+        }),
+        catchError(err=> of(false))
+      );
+
+  }
+
+
+  
 
   logout(){
     const url = `${this.baseUrl}/logout`;

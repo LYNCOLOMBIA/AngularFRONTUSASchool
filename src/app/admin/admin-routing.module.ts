@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { AdvertisingComponent } from './advertising/advertising.component';
 
 const routes: Routes = [
   {
     path:'',
     children:[
-      {path: '', component:DashboardComponent},
-
-      
-      {path: '**', redirectTo:''}
+      {path: 'dashboard', component:DashboardComponent},
+      {path: 'advertising', component:AdvertisingComponent},
+      {path: '**', redirectTo:'dashboard'}
     ]
   }
 ];

@@ -7,11 +7,13 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 //Personalized modules
 import { PrimeNgModule } from '../prime-ng/prime-ng.module';
 import { SharedModule } from '../shared/shared.module';
+import { AdvertisingComponent } from './advertising/advertising.component';
 
 
 @NgModule({
   declarations: [
-    DashboardComponent
+    DashboardComponent,
+    AdvertisingComponent
   ],
   imports: [
     CommonModule,

@@ -6,21 +6,20 @@ import { AuthService } from '../auth/services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class TokenValidationGuard implements CanActivate, CanLoad {
+export class RoleAdminValidationGuard implements CanActivate, CanLoad {
 
+  role:any = "";
   constructor(private authservice:AuthService,
-              private router: Router){
+    private router: Router){
 
-
-              }
-
+    }
   canActivate(): Observable<boolean>| boolean {
     console.log('canActivate');
-    return this.authservice.tokenValidate()
+    return this.authservice.roleAdminValidation()
       .pipe(
         tap(validate=>{
           if (!validate) {
-            this.router.navigateByUrl('/auth/login')
+            this.router.navigateByUrl('/forbidden')
           }
         }
         )
@@ -28,11 +27,11 @@ export class TokenValidationGuard implements CanActivate, CanLoad {
   }
   canLoad(): Observable<boolean>| boolean  {
     console.log('canLoad');
-    return this.authservice.tokenValidate()
+    return this.authservice.roleAdminValidation()
     .pipe(
       tap(validate=>{
         if (!validate) {
-          this.router.navigateByUrl('/auth/login')
+          this.router.navigateByUrl('/forbidden')
         }
       }
       )

@@ -30,12 +30,7 @@ export class LoginComponent{
 
           this.authService.getLoggedInUser(resp.access_token)
           .subscribe(user=>{
-            let role;
-            if(user.role_id == "1" ||user.role_id== "2"  ){
-              role = 'admin'
-            }else{
-              role = 'manager'
-            }
+            let role = user.role_id == "1" ||user.role_id== "2"  ? 'admin':  'manager';
             this.router.navigateByUrl(`/${role}/dashboard`);
             // this.loading = false;
           });
