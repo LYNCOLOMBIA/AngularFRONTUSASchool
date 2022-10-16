@@ -1,4 +1,5 @@
 export interface Advertising {
+
     id?: string,
     banner_xl_url?: string,
     banner_sm_url?:string,

@@ -22,6 +22,16 @@ export class AdvertisingService {
       .get<Advertising>(url, { headers: headers })
       .pipe(catchError((err) => of(err.error)));
   }
+  getGameAdvertising() {
+    const url = `${this.baseUrl}/advertising/game_advertising`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    });
+    return this.http
+      .get<Advertising>(url, { headers: headers })
+      .pipe(catchError((err) => of(err.error)));
+  }
 
   updateAdvertising(advertising: Advertising) {
     const url = `${this.baseUrl}/advertising/${advertising.id}`;

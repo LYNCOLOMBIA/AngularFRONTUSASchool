@@ -1,0 +1,20 @@
+.banner-xl {
+  width: 400px;
+  height: 400px;
+}
+
+.banner-sm {
+  width: 300px;
+  height: 150px;
+}
+
+
+:host ::ng-deep .myclass .p-dialog .p-dialog-header{
+
+    padding: 0;
+}
+
+:host ::ng-deep .myclass .p-dialog .p-dialog-content	{
+
+  padding: 0;
+}

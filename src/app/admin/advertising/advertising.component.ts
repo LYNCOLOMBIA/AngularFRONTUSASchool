@@ -100,6 +100,7 @@ export class AdvertisingComponent {
       this.advertising = {};
       console.log(this.advertising)
       this.advertisingDialog = true;
+      this.submitted = false
   }
 
   deleteSelectedAdvertisings() {
@@ -203,21 +204,6 @@ async uploadBannerAdvertisingXL(){
    return data.route;
    
 }
-  
-
-  // uploadSM(){
-  //   this.advertisingService.uploadBannerAdvertisingSM(this.bannerSM).subscribe(
-  //     resp=>{
-  //       this.messageService.add({ severity: 'info', summary: 'Advertising Updating', detail: resp.message, life: 3000 });
-  //       this.advertisingService.getAdvertising().subscribe(
-  //         resp=>{
-  //             // this.advertisings = resp;
-  //             this.loading = false;
-  //         }
-  //       );
-  //     }
-  //   )
-  // }
 
 
 
@@ -298,6 +284,7 @@ async uploadBannerAdvertisingXL(){
           this.bannerXL = '';
           this.advertisingDialog = false;
           this.advertising = {};
+          this.submitted = false;
   }
 
   findIndexById(id: string): number {

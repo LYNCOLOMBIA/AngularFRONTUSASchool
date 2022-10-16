@@ -5,6 +5,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { NotAuthorizedComponent } from './not-authorized/not-authorized.component';
 import { RoleAdminValidationGuard } from './guards/role-admin-validation.guard';
 import { LoginComponent } from './auth/pages/login/login.component';
+import { GameResultsComponent } from './reports/game-results/game-results.component';
 
 const routes: Routes = [
 
@@ -26,6 +27,7 @@ const routes: Routes = [
     canLoad:[TokenValidationGuard]
   },
   { path: 'forbidden', component: NotAuthorizedComponent },
+  { path: 'game_results', component: GameResultsComponent },
   // {
   //   path:'**',pathMatch: 'full',
   //   component:PageNotFoundComponent

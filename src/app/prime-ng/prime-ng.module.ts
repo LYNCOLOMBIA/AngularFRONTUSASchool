@@ -19,6 +19,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import {CalendarModule} from 'primeng/calendar';
 import {MenubarModule} from 'primeng/menubar';
+import {PanelModule} from 'primeng/panel';
 
 
 
@@ -48,7 +49,8 @@ import {MenubarModule} from 'primeng/menubar';
     InputNumberModule,
     DialogModule,
     CalendarModule,
-    MenubarModule
+    MenubarModule,
+    PanelModule
 
   ]
 })

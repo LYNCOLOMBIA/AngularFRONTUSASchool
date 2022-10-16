@@ -10,13 +10,15 @@ import { SharedModule } from './shared/shared.module';
 
 import { NotAuthorizedComponent } from './not-authorized/not-authorized.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { GameResultsComponent } from './reports/game-results/game-results.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     NotAuthorizedComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    GameResultsComponent
   ],
   imports: [
     BrowserModule,

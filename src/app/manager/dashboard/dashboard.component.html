@@ -1,5 +1,8 @@
-<app-navbar [dash]="dash" ></app-navbar>
+<app-navbar [dash]="dash"></app-navbar>
 <p-toast></p-toast>
+
+
+
 <div class="grid mx-4 mt-4">
   <div class="col-6">
     <div class="card">
@@ -143,12 +146,43 @@
       </p-table>
     </div>
   </div>
+  <!-- View Banners xl-->
+  <p-dialog
+    [(visible)]="advertisingBannerDialog"
+    (onHide)="openSMDialogBanner($event)"
+    [modal]="true"
+    class="p-fluid myclass"
+    [closable]="closable"
+  >
 
+      <a [href]="advertising.url_xl" target="_blank">
+        <img class="banner-xl" [src]="advertising.banner_xl_url" alt="" />
+      </a>
+      <p class="ml-4">{{ timeLeft }} Seconds Left....</p>
+
+
+
+  </p-dialog>
+  <!-- View Banners sm-->
+  <p-dialog
+    [(visible)]="advertisingBannerSMDialog"
+    position="bottom"
+    class="p-fluid myclass"
+    [closable]="closableSM"
+    [draggable]="closableSM"
+  >
+
+      <a [href]="advertising.url_sm" target="_blank">
+        <img class="banner-sm" [src]="advertising.banner_sm_url" alt="" />
+      </a>
+
+  </p-dialog>
   <p-dialog
     [(visible)]="deleteGroupDialog"
     header="Confirm"
     [modal]="true"
     [style]="{ width: '450px' }"
+    styleClass="prueba"
   >
     <div class="flex align-items-center justify-content-center">
       <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
@@ -259,7 +293,6 @@
           autofocus
         />
       </div>
-      
     </ng-template>
 
     <ng-template pTemplate="footer">
@@ -342,22 +375,33 @@
     header="Import students"
     [modal]="true"
     class="p-fluid"
-    loading = "loading"
+    loading="loading"
   >
     <ng-template pTemplate="content">
       <p-messages severity="info">
         <ng-template pTemplate>
-            <!-- <img src="assets/showcase/images/primeng.svg" width="32" /> -->
-            <div class="ml-2"><p>Remember:</p>
+          <!-- <img src="assets/showcase/images/primeng.svg" width="32" /> -->
+          <div class="ml-2">
+            <p>Remember:</p>
             <p>
-              1. Your file must have a header(The name you assign doesn't matter).
-              </p>
-              <p>
-                2. Preferably leave the full name in a single column, if you leave it in more than one they will be unified.
-                </p></div>
+              1. Your file must have a header(The name you assign doesn't
+              matter).
+            </p>
+            <p>
+              2. Preferably leave the full name in a single column, if you leave
+              it in more than one they will be unified.
+            </p>
+          </div>
         </ng-template>
-    </p-messages>
-      <p-fileUpload d name="myfile[]" [customUpload]="true" accept=".xlsx" [maxFileSize]="1000000" (uploadHandler)="readExcel($event)" ></p-fileUpload>
+      </p-messages>
+      <p-fileUpload
+        d
+        name="myfile[]"
+        [customUpload]="true"
+        accept=".xlsx"
+        [maxFileSize]="1000000"
+        (uploadHandler)="readExcel($event)"
+      ></p-fileUpload>
     </ng-template>
   </p-dialog>
 </div>

@@ -2,10 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
 import { MessageService } from 'primeng/api';
-import { Group, Student,ExcelStudent } from '../interfaces/interfaces';
+import { Group, Student, ExcelStudent } from '../interfaces/interfaces';
 import { ManagerService } from '../services/manager.service';
-import * as XLSX from "xlsx";
-
+import * as XLSX from 'xlsx';
+import { AdvertisingService } from '../../admin/advertising/services/advertising.service';
+import { Advertising } from '../../admin/advertising/interfaces/interfaces';
+import { timer } from 'rxjs';
+import { environment } from '../../../environments/environment.prod';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -13,12 +16,18 @@ import * as XLSX from "xlsx";
   providers: [MessageService],
 })
 export class DashboardComponent implements OnInit {
+  advertisings: Advertising[] = [];
+  advertising: Advertising = {};
   get loggedUser() {
     return this.authservice.loggedUser;
   }
+  private storageURL: string = environment.storageURL;
   loading: boolean = true;
 
   userStudents: Student[] = [];
+
+  closable: boolean = false;
+  closableSM: boolean = false;
 
   students: Student[] = [];
 
@@ -32,7 +41,7 @@ export class DashboardComponent implements OnInit {
 
   studentDialog: boolean = false;
 
-  importDialog:boolean = false;
+  importDialog: boolean = false;
 
   deleteGroupDialog: boolean = false;
 
@@ -44,19 +53,21 @@ export class DashboardComponent implements OnInit {
 
   selectedGroup!: Group;
 
-  excelData:any[] = [];
+  excelData: any[] = [];
 
-  excel:any[] = [];
-
+  excel: any[] = [];
+  timeLeft: number = 10;
+  interval: any;
   dash = 'manager';
-
+  advertisingBannerDialog: boolean = true;
+  advertisingBannerSMDialog: boolean = false;
   constructor(
     private router: Router,
     private authservice: AuthService,
     private managerservice: ManagerService,
-    private messageService: MessageService
-  ) // private userService: UserService,
-  // private fb:FormBuilder
+    private messageService: MessageService,
+    private AdvertisingService: AdvertisingService // private userService: UserService,
+  ) // private fb:FormBuilder
   {}
 
   ngOnInit() {
@@ -70,9 +81,60 @@ export class DashboardComponent implements OnInit {
         console.log(this.userStudents);
       });
     });
+
+    this.loadAdvertising();
+    this.startTimer()
+  }
+  startTimer() {
+    this.interval = setInterval(() => {
+      if (this.timeLeft > 0) {
+        this.timeLeft--;
+
+      } else {
+        this.closable = true;
+        this.timeLeft = 0;
+      }
+    }, 1000);
   }
 
-  
+  pauseTimer() {
+    clearInterval(this.interval);
+  }
+
+  loadAdvertising() {
+    this.AdvertisingService.getGameAdvertising().subscribe((resp) => {
+
+      this.advertisings = resp;
+      let cant = this.advertisings.length;
+      let random_number = Math.floor(Math.random() * cant);
+
+      this.advertising = resp[random_number];
+
+      if (this.advertising.banner_xl_url) {
+        this.advertising.banner_xl_url = `${
+          this.storageURL
+        }${this.advertising.banner_xl_url?.replace('public', '')}`;
+      } else {
+        this.advertising.banner_xl_url = '';
+      }
+
+      if (this.advertising.banner_sm_url) {
+        this.advertising.banner_sm_url = `${
+          this.storageURL
+        }${this.advertising.banner_sm_url?.replace('public', '')}`;
+      } else {
+        this.advertising.banner_sm_url = '';
+      }
+      console.log(this.advertising);
+    });
+  }
+
+
+
+  openSMDialogBanner(event:any) {
+    console.log(event)
+    this.advertisingBannerSMDialog = true;
+  }
   hideGroupDialog() {
     this.groupDialog = false;
   }
@@ -112,6 +174,7 @@ export class DashboardComponent implements OnInit {
     this.group = {};
     this.groupDialog = true;
   }
+
 
   findGroupIndexById(id: string): number {
     let index = -1;
@@ -156,59 +219,54 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  readExcel(event:any ){
+  readExcel(event: any) {
     this.importDialog = false;
     this.loading = true;
     this.excel = [];
-    let file =  event.files[0];
+    let file = event.files[0];
     console.log(file);
     let fileReader = new FileReader();
     fileReader.readAsBinaryString(file);
-    fileReader.onload = (e)=>{
-     var workBook = XLSX.read(fileReader.result,{type:'binary'});
-     var sheetNames = workBook.SheetNames;
-     this.excelData =  XLSX.utils.sheet_to_json(workBook.Sheets[sheetNames[0]]);
+    fileReader.onload = (e) => {
+      var workBook = XLSX.read(fileReader.result, { type: 'binary' });
+      var sheetNames = workBook.SheetNames;
+      this.excelData = XLSX.utils.sheet_to_json(workBook.Sheets[sheetNames[0]]);
 
-    let headers = Object.keys(this.excelData[0]);
+      let headers = Object.keys(this.excelData[0]);
 
-    const [code, name] = headers;
+      const [code, name] = headers;
 
-    let students = this.excelData.map((student)=>({
-          group_id:this.selectedGroup.id,
-          first_name: student[name],
-          code: student[code]
-    }));
+      let students = this.excelData.map((student) => ({
+        group_id: this.selectedGroup.id,
+        first_name: student[name],
+        code: student[code],
+      }));
 
-    let data = {
-      data:[
-        ...this.students = students
-      ]
-    };
+      let data = {
+        data: [...(this.students = students)],
+      };
 
-     this.managerservice.storeStudent(data).subscribe((resp) => {
-       this.messageService.add({
-         severity: 'info',
-         summary: 'Student creation',
-         detail: resp.message,
-         life: 3000,
-       });
-       this.managerservice.students().subscribe((resp) => {
-         this.userStudents = resp;
-         this.students = this.userStudents.filter(
-           (val) => val.group_id === this.selectedGroup.id
-         );
-         this.loading = false;
-         console.log(this.userStudents);
-       });
-     });
-   
+      this.managerservice.storeStudent(data).subscribe((resp) => {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Student creation',
+          detail: resp.message,
+          life: 3000,
+        });
+        this.managerservice.students().subscribe((resp) => {
+          this.userStudents = resp;
+          this.students = this.userStudents.filter(
+            (val) => val.group_id === this.selectedGroup.id
+          );
+          this.loading = false;
+          console.log(this.userStudents);
+        });
+      });
+
       console.table(this.excelData);
       console.log(headers);
-      console.table(this.students )
-
-    }
-    
-
+      console.table(this.students);
+    };
   }
   selectStudent(student: Student) {
     this.messageService.add({
@@ -230,7 +288,9 @@ export class DashboardComponent implements OnInit {
     this.deleteStudentDialog = false;
     this.managerservice.deleteStudent(this.student.id!).subscribe((resp) => {
       this.students = this.students.filter((val) => val.id !== this.student.id);
-      this.userStudents = this.userStudents.filter((val) => val.id !== this.student.id);
+      this.userStudents = this.userStudents.filter(
+        (val) => val.id !== this.student.id
+      );
       this.messageService.add({
         severity: 'info',
         summary: 'Student deleting',
@@ -296,7 +356,7 @@ export class DashboardComponent implements OnInit {
 
     return index;
   }
-  
+
   findUserStudentIndexById(id: string): number {
     let index = -1;
     for (let i = 0; i < this.userStudents.length; i++) {
@@ -313,8 +373,10 @@ export class DashboardComponent implements OnInit {
     if (this.student.first_name!.trim()) {
       if (this.student.id) {
         // @ts-ignore
-        this.students[this.findStudentIndexById(this.student.id)] = this.student;
-        this.userStudents[this.findUserStudentIndexById(this.student.id)] = this.student;
+        this.students[this.findStudentIndexById(this.student.id)] =
+          this.student;
+        this.userStudents[this.findUserStudentIndexById(this.student.id)] =
+          this.student;
         this.managerservice.updateStudent(this.student).subscribe((resp) => {
           this.messageService.add({
             severity: 'info',
@@ -354,7 +416,6 @@ export class DashboardComponent implements OnInit {
     }
   }
   onRowSelect(event: any) {
-
     this.students = this.userStudents.filter(
       (val) => val.group_id === event.data.id
     );
